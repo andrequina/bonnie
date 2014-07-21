@@ -14,12 +14,12 @@
   </div>
   <div id="collapse{{cid}}" class="panel-collapse collapse in">
     <div class="panel-body">
-    {{#if population.comments}}{{#each population.comments}}<div># {{this}}</div>{{/each}}{{/if}}
+      {{#if comments}}{{#each comments}}<div class="logic-comment"># {{this}}</div>{{/each}}{{/if}}
       {{#if rootPreconditon}}
         {{#if rootPreconditon.preconditions }}
-         {{#each rootPreconditon.preconditions}}
-          {{view "PreconditionLogic" precondition=this parentPrecondition=../rootPreconditon measure=../measure}}
-        {{/each}}
+          {{#each rootPreconditon.preconditions}}
+            {{view "PreconditionLogic" precondition=this parentPrecondition=../rootPreconditon measure=../measure}}
+          {{/each}}
         {{else}}
           <ul>
             <li>

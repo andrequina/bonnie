@@ -18,6 +18,7 @@ class Thorax.Views.PopulationCriteriaLogic extends Thorax.Views.BonnieView
   initialize: ->
     @rootPreconditon = @population.preconditions[0] if @population.preconditions?.length > 0
     @aggregator = @population.aggregator
+    @comments = _(@rootPreconditon.comments || []).union(@population.comments || [])
 
   translate_population: (code) ->
     @population_map[code]
