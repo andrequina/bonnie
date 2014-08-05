@@ -44,12 +44,15 @@ class PatientsController < ApplicationController
     # if we have results we want to write a summary
     summary_content = get_summary_content(measure, records, params[:results].values) if (params[:results])
 
+    # if user is a portfolio user, do not filter patients to a single measure
+    export_measure = current_user.portfolio? ? [] : measure
+
     stringio = Zip::ZipOutputStream::write_buffer do |zip|
       records.each_with_index do |patient, index|
         zip.put_next_entry(File.join("qrda","#{index+1}_#{patient.last}_#{patient.first}.xml"))
-        zip.puts qrda_exporter.export(patient, measure, start_time, end_time)
+        zip.puts qrda_exporter.export(patient, export_measure, start_time, end_time)
         zip.put_next_entry(File.join("html","#{index+1}_#{patient.last}_#{patient.first}.html"))
-        zip.puts html_exporter.export(patient, measure)
+        zip.puts html_exporter.export(patient, export_measure)
       end
       if summary_content
         zip.put_next_entry("#{measure.first.cms_id}_results.html")
