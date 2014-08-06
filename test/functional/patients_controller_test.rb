@@ -154,16 +154,44 @@ include Devise::TestHelpers
       html_files.length.must_equal 4
 
       # A non-portfolio user should not export any encounters for
-      # CMS138v2 for fixture records
-      qrda_files.each do |qrda_file|
-        doc = Nokogiri::XML(qrda_file.get_input_stream())
-        
-        assert_equal 0, doc.xpath('//xmlns:encounter', doc.namespaces).length
-      end
-
+      # CMS138v2 to html
       html_files.each do |html_file|
         doc = Nokogiri::HTML(html_file.get_input_stream())
         assert_equal 0, doc.css('.narr_tr').length
+      end
+    end
+    File.delete(zip_path)
+
+  end
+
+  test "export patients profile" do
+    sign_in @user_portfolio
+
+    collection_fixtures("records")
+    associate_user_with_measures(@user_portfolio,Measure.all)
+    associate_user_with_patients(@user_portfolio,Record.all)
+    associate_measure_with_patients(@measure,Record.all)
+    get :export, hqmf_set_id: @measure.hqmf_set_id
+    assert_response :success
+    response.header['Content-Type'].must_equal 'application/zip'
+    response.header['Content-Disposition'].must_equal "attachment; filename=\"#{@measure.cms_id}_patient_export.zip\""
+    response.header['Set-Cookie'].must_equal 'fileDownload=true; path=/'
+    response.header['Content-Transfer-Encoding'].must_equal 'binary'
+
+    zip_path = File.join('tmp','test.zip')
+    File.open(zip_path, 'wb') {|file| response.body_parts.each { |part| file.write(part)}}
+    Zip::ZipFile.open(zip_path) do |zip_file|
+      qrda_files = zip_file.glob(File.join('qrda','**.xml'))
+      html_files = zip_file.glob(File.join('html','**.html'))
+
+      qrda_files.length.must_equal 4
+      html_files.length.must_equal 4
+
+      # A portfolio user should export any encounters even for
+      # non-CMS138v2 measures
+      html_files.each do |html_file|
+        doc = Nokogiri::HTML(html_file.get_input_stream())
+        assert_operator 0, :<, doc.css('.narr_table').length
       end
     end
     File.delete(zip_path)
