@@ -8,6 +8,7 @@ include Devise::TestHelpers
     collection_fixtures("draft_measures", "users")
     @user = User.by_email('bonnie@example.com').first
     associate_user_with_measures(@user,Measure.all)
+    @user_portfolio = User.by_email('user_portfolio@example.com').first
     @measure = Measure.where({"cms_id" => "CMS138v2"}).first
     sign_in @user
   end
@@ -146,11 +147,26 @@ include Devise::TestHelpers
     zip_path = File.join('tmp','test.zip')
     File.open(zip_path, 'wb') {|file| response.body_parts.each { |part| file.write(part)}}
     Zip::ZipFile.open(zip_path) do |zip_file|
-      zip_file.glob(File.join('qrda','**.xml')).length.must_equal 4
-      zip_file.glob(File.join('html','**.html')).length.must_equal 4
+      qrda_files = zip_file.glob(File.join('qrda','**.xml'))
+      html_files = zip_file.glob(File.join('html','**.html'))
+
+      qrda_files.length.must_equal 4
+      html_files.length.must_equal 4
+
+      # A non-portfolio user should not export any encounters for
+      # CMS138v2 for fixture records
+      qrda_files.each do |qrda_file|
+        doc = Nokogiri::XML(qrda_file.get_input_stream())
+        
+        assert_equal 0, doc.xpath('//xmlns:encounter', doc.namespaces).length
+      end
+
+      html_files.each do |html_file|
+        doc = Nokogiri::HTML(html_file.get_input_stream())
+        assert_equal 0, doc.css('.narr_tr').length
+      end
     end
     File.delete(zip_path)
-
 
   end
 
