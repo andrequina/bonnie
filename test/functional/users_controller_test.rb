@@ -36,7 +36,7 @@ include Devise::TestHelpers
     sign_in @user_admin
     get :index, {format: :json}
     assert_response :success
-    JSON.parse(response.body).count.must_equal 4
+    JSON.parse(response.body).count.must_equal 5
   end
 
   test "approve user" do
@@ -64,11 +64,11 @@ include Devise::TestHelpers
 
   test "delete user" do
     sign_in @user_admin
-    User.all.count.must_equal 4
+    User.all.count.must_equal 5
     User.where({id: @user_plain.id}).count.must_equal 1
     delete :destroy, {id: @user_plain.id, format: :json}
     assert_response :success
-    User.all.count.must_equal 3
+    User.all.count.must_equal 4
     User.where({id: @user_plain.id}).count.must_equal 0
   end
 
