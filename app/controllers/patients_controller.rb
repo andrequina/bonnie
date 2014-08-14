@@ -49,7 +49,7 @@ class PatientsController < ApplicationController
         zip.put_next_entry(File.join("qrda","#{index+1}_#{patient.last}_#{patient.first}.xml"))
         zip.puts qrda_exporter.export(patient, measure, start_time, end_time)
         zip.put_next_entry(File.join("html","#{index+1}_#{patient.last}_#{patient.first}.html"))
-        zip.puts html_exporter.export(patient, measure)
+        zip.puts html_exporter.export(patient, (current_user.portfolio?) ? ([]) : (measure))
       end
       if summary_content
         zip.put_next_entry("#{measure.first.cms_id}_results.html")

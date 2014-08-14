@@ -135,7 +135,9 @@ include Devise::TestHelpers
   test "export patients" do
     collection_fixtures("records")
     associate_user_with_patients(@user,Record.all)
-    associate_measure_with_patients(@measure,Record.all)
+    unless @user.portfolio? 
+	associate_measure_with_patients(@measure,Record.all)
+    end
     get :export, hqmf_set_id: @measure.hqmf_set_id
     assert_response :success
     response.header['Content-Type'].must_equal 'application/zip'
