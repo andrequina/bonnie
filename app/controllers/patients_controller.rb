@@ -50,13 +50,8 @@ class PatientsController < ApplicationController
         zip.put_next_entry(File.join("qrda","#{index+1}_#{patient.last}_#{patient.first}.xml"))
         zip.puts qrda_exporter.export(patient, measure, start_time, end_time)
         zip.put_next_entry(File.join("html","#{index+1}_#{patient.last}_#{patient.first}.html"))
-        
-        # Don't pass in measures to HTML export if user is portfolio
-        if current_user.portfolio?
-          zip.puts html_exporter.export(patient, [])
-        else
-          zip.puts html_exporter.export(patient, measure)
-        end
+
+        zip.puts html_exporter.export(patient, if current_user.portfolio? then [] else measure end)
 
       end
       if summary_content

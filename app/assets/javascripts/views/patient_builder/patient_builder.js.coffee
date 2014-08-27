@@ -50,8 +50,7 @@ class Thorax.Views.PatientBuilder extends Thorax.Views.BonnieView
       unless filter_criteria
         categories[type] ||= new Thorax.Collection
         categories[type].add criteria unless categories[type].any (c) -> c.get('description').replace(/,/g , "") == criteria.get('description').replace(/,/g , "")
-    _(categories).omit('transfers')
-    _(categories).omit('derived')
+    _(categories).omit('transfers','derived')
 
   events:
     'blur :text':               'materialize'  
@@ -185,3 +184,4 @@ class Thorax.Views.BuilderPopulationLogic extends Thorax.LayoutView
   context: ->
     _(super).extend
       title: if @model.collection.parent.get('populations').length > 1 then (@model.get('title') || @model.get('sub_id')) else ''
+      cms_id: @model.collection.parent.get('cms_id')
