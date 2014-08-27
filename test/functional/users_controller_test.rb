@@ -36,7 +36,7 @@ include Devise::TestHelpers
     sign_in @user_admin
     get :index, {format: :json}
     assert_response :success
-    JSON.parse(response.body).count.must_equal 4
+    JSON.parse(response.body).count.must_equal 5
   end
 
   test "approve user" do
@@ -64,11 +64,11 @@ include Devise::TestHelpers
 
   test "delete user" do
     sign_in @user_admin
-    User.all.count.must_equal 4
+    User.all.count.must_equal 5
     User.where({id: @user_plain.id}).count.must_equal 1
     delete :destroy, {id: @user_plain.id, format: :json}
     assert_response :success
-    User.all.count.must_equal 3
+    User.all.count.must_equal 4
     User.where({id: @user_plain.id}).count.must_equal 0
   end
 
@@ -107,7 +107,7 @@ include Devise::TestHelpers
     sign_in @user_admin
     get :measures, {id: @user.id}
     assert_response :success
-    JSON.parse(response.body).length.must_equal 1
+    JSON.parse(response.body).length.must_equal 2
   end
 
   test "bundle download" do
@@ -124,8 +124,8 @@ include Devise::TestHelpers
     Zip::ZipFile.open(zip_path) do |zip_file|
       zip_file.glob(File.join('patients','**','*.json')).count.must_equal 4
       zip_file.glob(File.join('patients','**','*.html')).count.must_equal 4
-      zip_file.glob(File.join('sources','**','*.json')).count.must_equal 1
-      zip_file.glob(File.join('sources','**','*.metadata')).count.must_equal 1
+      zip_file.glob(File.join('sources','**','*.json')).count.must_equal 2
+      zip_file.glob(File.join('sources','**','*.metadata')).count.must_equal 2
       zip_file.glob(File.join('value_sets','**','*.json')).count.must_equal 27
     end
     File.delete(zip_path)
